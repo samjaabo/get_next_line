@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: samjaabo <samjaabo@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/11 11:30:58 by samjaabo          #+#    #+#             */
-/*   Updated: 2022/11/15 12:21:56 by samjaabo         ###   ########.fr       */
+/*   Updated: 2022/11/15 12:30:18 by samjaabo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,28 +66,42 @@ static char	*ft_read(int fd)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*data;
+	static char	*data[10240];
 
 	line = NULL;
 	if (BUFFER_SIZE <= 0 || fd < 0)
-		return (free(data), NULL);
+		return (free(data[fd]), NULL);
 	if (read(fd, 0, 0) < 0)
-		return (free(data), data = NULL);
-	if (!ft_strchr(data, '\n'))
+		return (free(data[fd]), data[fd] = NULL);
+	if (!ft_strchr(data[fd], '\n'))
 	{
 		line = ft_read(fd);
-		if (!line && !data)
+		if (!line && !data[fd])
 			return (NULL);
-		if (!line && *data == '\0')
-			return (free(data), data = NULL);
-		data = ft_strjoin(data, line);
-		if (!data)
+		if (!line && data[fd][0] == '\0')
+			return (free(data[fd]), data[fd] = NULL);
+		data[fd] = ft_strjoin(data[fd], line);
+		if (!data[fd])
 			return (NULL);
 	}
-	data = split_data(data, &line);
-	if (!data)
+	data[fd] = split_data(data[fd], &line);
+	if (!data[fd])
 		return (NULL);
-	if (*line == '\0' && *data == '\0')
-		return (free(data), free(line), data = NULL);
+	if (*line == '\0' && data[fd][0] == '\0')
+		return (free(data[fd]), free(line), data[fd] = NULL);
 	return (line);
 }
+// int main()
+// {
+// 	char *tmp;
+// 	int i = 1;
+// 	int fd = open("Said.txt", O_RDONLY);
+// 	do
+// 	{
+// 		tmp = get_next_line(fd);
+// 		printf("line [%d] :%s", i, tmp);
+// 		i++;	
+// 	}
+// 	while(tmp || i==19);
+// 	//system("leaks main");
+// }
